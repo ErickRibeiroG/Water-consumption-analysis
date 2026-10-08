@@ -464,7 +464,7 @@
 </footer>
 
 <script>
-  // ⚙️ Configure aqui os links do projeto depois da publicação.
+  // Links do projeto (repositório, dashboard, README, código e notebook).
   const CONFIG = {
     repo: "https://github.com/ErickRibeiroG/Water-consumption-analysis",
     streamlit: "https://consumo-agua-br-m2okw6bzzwja2rztjwjzfe.streamlit.app",
@@ -472,7 +472,6 @@
   };
 
   const repoPath = CONFIG.repo.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "");
-  const configurado = !repoPath.includes("SEU_");
   const links = {
     repo: CONFIG.repo,
     streamlit: CONFIG.streamlit,
@@ -481,10 +480,7 @@
     notebook: `https://nbviewer.org/github/${repoPath}/blob/${CONFIG.branch}/notebooks/analise_consumo_agua.ipynb`,
   };
   document.querySelectorAll("[data-link]").forEach((el) => {
-    const chave = el.dataset.link;
-    if (chave === "streamlit" && CONFIG.streamlit.includes("SEU-APP")) return;
-    if (chave !== "streamlit" && !configurado) return;
-    el.href = links[chave];
+    el.href = links[el.dataset.link];
   });
 
   // 🌗 Tema claro/escuro: segue o sistema até o visitante escolher; a escolha fica salva no navegador.

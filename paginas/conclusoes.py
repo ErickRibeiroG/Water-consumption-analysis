@@ -1,9 +1,29 @@
 import streamlit as st
 
-from utils import app_comum, dados
+from utils import app_comum, dados, estilo
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
+
+# Selos de prioridade: tom suave da cor de status (fundo translúcido + borda leve + texto no mesmo matiz).
+_SELOS = {
+    #          RGB do status     texto (claro)  texto (escuro)
+    "Alta":  ((208, 59, 59),   "#9b2a2a",     "#f3a5a5"),
+    "Média": ((250, 178, 25),  "#7a5200",     "#f5cd73"),
+    "Baixa": ((12, 163, 12),   "#1d6b1d",     "#8fd68f"),
+}
+
+
+def selo(nivel: str) -> str:
+    (r, g, b), texto_claro, texto_escuro = _SELOS[nivel]
+    escuro = pal.MODO == "dark"
+    fundo = f"rgba({r},{g},{b},{0.16 if escuro else 0.10})"
+    borda = f"rgba({r},{g},{b},{0.35 if escuro else 0.30})"
+    return (f'<span style="display:inline-block; padding:2px 12px; border-radius:999px; background:{fundo}; '
+            f'border:1px solid {borda}; color:{texto_escuro if escuro else texto_claro}; font-size:0.85em; '
+            f'font-weight:600; white-space:nowrap;">{nivel}</span>')
+
 
 st.title("Conclusão executiva")
 st.caption(app_comum.descrever_filtros(f, base))
@@ -49,11 +69,11 @@ st.markdown(f"""
 
 | Prioridade | Ação | Indicador de acompanhamento |
 |---|---|---|
-| 🔴 Alta | Programa de **redução de perdas** (detecção de vazamentos, setorização, troca de redes antigas) | Taxa de desperdício (meta: < 25%) |
-| 🔴 Alta | **Recalcular o nível de alerta** com regras objetivas a partir do reservatório (`faixa_reservatorio`) | Coerência alerta × reservatório |
-| 🟠 Média | **Monitoramento contínuo** dos estados com mais meses em reservatório crítico | % de registros com reservatório < 30% |
-| 🟠 Média | **Governança de dados**: validar população (IBGE), per capita e alertas na origem | Testes de coerência aprovados |
-| 🟢 Baixa | Ampliar a cobertura para as 27 UFs e integrar fontes oficiais (SNIS/ANA) | Nº de UFs cobertas |
+| {selo('Alta')} | Programa de **redução de perdas** (detecção de vazamentos, setorização, troca de redes antigas) | Taxa de desperdício (meta: < 25%) |
+| {selo('Alta')} | **Recalcular o nível de alerta** com regras objetivas a partir do reservatório (`faixa_reservatorio`) | Coerência alerta × reservatório |
+| {selo('Média')} | **Monitoramento contínuo** dos estados com mais meses em reservatório crítico | % de registros com reservatório < 30% |
+| {selo('Média')} | **Governança de dados**: validar população (IBGE), per capita e alertas na origem | Testes de coerência aprovados |
+| {selo('Baixa')} | Ampliar a cobertura para as 27 UFs e integrar fontes oficiais (SNIS/ANA) | Nº de UFs cobertas |
 
 ### Limitações
 - A base é **simulada**: as conclusões quantitativas ilustram o método e não devem embasar decisões reais.
@@ -65,4 +85,4 @@ Um **pipeline completo e reutilizável**: leitura e validação → limpeza → 
 (SQLAlchemy + SQLite) → integração com API (IBGE) → análise exploratória e estatística → dashboard interativo
 multipágina. Basta enviar uma base real pelo **upload** na barra lateral para que todas as páginas, KPIs e interpretações
 sejam recalculados.
-""")
+""", unsafe_allow_html=True)

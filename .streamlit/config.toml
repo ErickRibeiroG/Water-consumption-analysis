@@ -1,4 +1,4 @@
-# Tema claro e escuro: o usuário escolhe em ⋮ → Settings (ou segue o sistema operacional).
+# Tema claro e escuro: segue o sistema operacional; o usuário também escolhe em ⋮ → Light / Dark / System.
 [theme]
 primaryColor = "#2a78d6"
 font = "Comfortaa:https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap, sans-serif"

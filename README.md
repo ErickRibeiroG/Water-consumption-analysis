@@ -6,8 +6,8 @@ Projeto de análise e visualização de dados sobre **consumo, desperdício e se
 
 | Entrega | Link |
 |---|---|
-| 📄 Página do projeto (GitHub Pages) | `https://erickribeirog.github.io/Water-consumption-analysis/` |
-| 📊 Dashboard (Streamlit Community Cloud) | `https://consumo-agua-br-m2okw6bzzwja2rztjwjzfe.streamlit.app` |
+| 📄 Página do projeto (GitHub Pages) | https://erickribeirog.github.io/Water-consumption-analysis/ |
+| 📊 Dashboard (Streamlit Community Cloud) | https://consumo-agua-br-m2okw6bzzwja2rztjwjzfe.streamlit.app |
 | 📓 Notebook de análise | [`notebooks/analise_consumo_agua.ipynb`](notebooks/analise_consumo_agua.ipynb) |
 | 🐍 Código do dashboard | [`app.py`](app.py) + [`paginas/`](paginas/) + [`utils/`](utils/) |
 
