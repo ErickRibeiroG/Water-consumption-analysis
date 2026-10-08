@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consumo de Água no Brasil | Projeto de Análise de Dados</title>
+<meta name="description" content="Projeto de análise e visualização de dados sobre consumo, desperdício e segurança hídrica no Brasil com Python, Pandas, Seaborn, SQLAlchemy e Streamlit.">
+<style>
+  :root {
+    --bg: #f7f8f6;
+    --surface: #ffffff;
+    --ink: #0b1b2b;
+    --ink-2: #44515e;
+    --muted: #7a8590;
+    --line: #e2e6e9;
+    --blue: #2a78d6;
+    --blue-dark: #0d366b;
+    --blue-soft: #e8f1fc;
+    --orange: #eb6834;
+    --good: #0ca30c;
+    --critical: #d03b3b;
+    --radius: 14px;
+    --shadow: 0 1px 2px rgba(11, 27, 43, .05), 0 8px 24px rgba(11, 27, 43, .06);
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--bg); line-height: 1.6; font-size: 16px; }
+  img { max-width: 100%; display: block; }
+  a { color: var(--blue); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
+
+  /* topo */
+  nav.top { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.top .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+  nav.top .brand { font-weight: 700; color: var(--ink); text-decoration: none; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+  nav.top ul { display: flex; gap: 20px; list-style: none; margin: 0 0 0 auto; padding: 0; overflow-x: auto; }
+  nav.top ul a { color: var(--ink-2); text-decoration: none; font-size: 14px; white-space: nowrap; }
+  nav.top ul a:hover { color: var(--blue); }
+
+  /* hero */
+  header.hero { background: linear-gradient(160deg, var(--blue-dark) 0%, #184f95 55%, var(--blue) 100%); color: #fff; padding-block: 72px 88px; position: relative; overflow: hidden; }
+  header.hero::after { content: ""; position: absolute; inset: auto -10% -60px -10%; height: 120px; background: var(--bg); border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+  .eyebrow { display: inline-block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; background: rgba(255,255,255,.14); padding: 6px 12px; border-radius: 999px; }
+  .hero h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.1; margin: 18px 0 14px; letter-spacing: -.02em; }
+  .hero p.lead { font-size: clamp(1.05rem, 2vw, 1.25rem); max-width: 720px; color: #dbe8f8; margin: 0 0 28px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; font-size: 15px; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.primary { background: #fff; color: var(--blue-dark); box-shadow: 0 6px 18px rgba(0,0,0,.18); }
+  .btn.ghost { color: #fff; border: 1px solid rgba(255,255,255,.45); }
+  .btn.ghost:hover { background: rgba(255,255,255,.1); }
+  .meta { margin-top: 28px; font-size: 14px; color: #c8dbf3; }
+
+  /* kpis */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: -56px; position: relative; z-index: 2; }
+  .kpi { background: var(--surface); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .kpi .label { font-size: 13px; color: var(--muted); }
+  .kpi .value { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; margin: 2px 0; }
+  .kpi .note { font-size: 13px; color: var(--ink-2); }
+
+  /* seções */
+  section { padding-block: 56px 8px; }
+  section h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 8px; letter-spacing: -.01em; }
+  section .sub { color: var(--ink-2); margin: 0 0 28px; max-width: 760px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); }
+  .card h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .card p { margin: 0; color: var(--ink-2); font-size: 15px; }
+  .num { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--blue-soft); color: var(--blue); font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+
+  /* tabelas */
+  .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; background: #fafbfa; }
+  tr:last-child td { border-bottom: 0; }
+  td code, p code, li code { font-family: var(--mono); font-size: 13px; background: #f1f3f4; padding: 2px 6px; border-radius: 6px; }
+  td.n { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
+
+  /* figuras */
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+  figure img { border-radius: 8px; width: 100%; height: auto; }
+  figcaption { font-size: 14px; color: var(--ink-2); padding: 12px 4px 2px; }
+  figcaption b { color: var(--ink); }
+  .fig-wide { grid-column: 1 / -1; }
+
+  /* destaques */
+  .callout { border-left: 4px solid var(--orange); background: #fff5ef; padding: 18px 22px; border-radius: 0 var(--radius) var(--radius) 0; color: var(--ink); }
+  .callout strong { color: #a8431a; }
+  .pill { display: inline-block; font-size: 13px; padding: 5px 12px; border-radius: 999px; background: var(--blue-soft); color: var(--blue-dark); margin: 0 6px 8px 0; font-weight: 500; }
+  .check { list-style: none; padding: 0; margin: 0; }
+  .check li { padding: 8px 0 8px 30px; position: relative; border-bottom: 1px dashed var(--line); font-size: 15px; color: var(--ink-2); }
+  .check li:last-child { border-bottom: 0; }
+  .check li::before { content: "✓"; position: absolute; left: 0; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: #e6f6e6; color: var(--good); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .check li b { color: var(--ink); }
+
+  /* pipeline */
+  .pipeline { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; box-shadow: var(--shadow); }
+  .step small { display: block; color: var(--muted); font-size: 12px; }
+  .arrow { color: var(--muted); }
+
+  /* arquivos */
+  .files a.card { text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease; display: block; }
+  .files a.card:hover { border-color: var(--blue); transform: translateY(-2px); }
+  .files .ext { font-family: var(--mono); font-size: 12px; color: var(--blue); }
+
+  pre.tree { font-family: var(--mono); font-size: 13.5px; background: #0f1d2b; color: #d6e3f0; padding: 20px; border-radius: var(--radius); overflow-x: auto; margin: 0; line-height: 1.55; }
+  pre.tree .c { color: #7f95ab; }
+
+  footer { margin-top: 64px; background: var(--ink); color: #b8c4cf; padding-block: 36px; font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
+  footer a { color: #fff; }
+
+  @media (max-width: 900px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding-inline: 16px; }
+    nav.top ul { display: none; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .kpi .value { font-size: 1.6rem; }
+    header.hero { padding-block: 48px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top" aria-label="Seções">
+  <div class="wrap">
+    <a class="brand" href="#topo">💧 Consumo de Água</a>
+    <ul>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#perguntas">Perguntas</a></li>
+      <li><a href="#indicadores">Indicadores</a></li>
+      <li><a href="#resultados">Resultados</a></li>
+      <li><a href="#tecnologias">Tecnologias</a></li>
+      <li><a href="#arquivos">Arquivos</a></li>
+      <li><a href="#dashboard">Dashboard</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="topo">
+  <div class="wrap">
+    <span class="eyebrow">Projeto de Análise de Dados · Python</span>
+    <h1>Consumo de Água no Brasil</h1>
+    <p class="lead">Painel analítico de consumo, desperdício e segurança hídrica em 20 estados e 5 setores, de 2015 a 2024.
+      O projeto cobre tratamento de dados, KPIs, análise estatística, banco relacional, integração com a API do IBGE
+      e um dashboard interativo.</p>
+    <div class="btns">
+      <a class="btn primary" data-link="streamlit" href="#dashboard" target="_blank" rel="noopener">▶ Abrir dashboard</a>
+      <a class="btn ghost" data-link="repo" href="#arquivos" target="_blank" rel="noopener">Código no GitHub</a>
+      <a class="btn ghost" data-link="notebook" href="notebooks/analise_consumo_agua.ipynb" target="_blank" rel="noopener">Notebook de análise</a>
+    </div>
+    <p class="meta">Sistemas de Informação · Linguagens de Programação · Erick Ribeiro</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="kpis" aria-label="Indicadores principais">
+    <div class="kpi"><div class="label">Consumo total</div><div class="value">92,6 bi L</div><div class="note">4.440 registros mensais</div></div>
+    <div class="kpi"><div class="label">Taxa de desperdício</div><div class="value" style="color:var(--orange)">30,1%</div><div class="note">27,9 bilhões de litros perdidos</div></div>
+    <div class="kpi"><div class="label">Reservatório &lt; 30%</div><div class="value">26,8%</div><div class="note">dos registros em nível crítico</div></div>
+    <div class="kpi"><div class="label">Alerta Alto ou Crítico</div><div class="value" style="color:var(--critical)">50,7%</div><div class="note">dos registros</div></div>
+  </div>
+
+  <section id="sobre">
+    <h2>Sobre o projeto</h2>
+    <p class="sub">A gestão da água no Brasil precisa equilibrar <b>demanda</b>, <b>perdas na distribuição</b> e
+      <b>disponibilidade dos reservatórios</b>. Este projeto parte de uma base mensal de consumo por estado e setor e passa por
+      todas as etapas de um projeto profissional de dados: preparação, análise exploratória, criação de indicadores, visualização,
+      persistência em banco, integração com dados oficiais e publicação de um dashboard interativo.</p>
+    <div class="callout">
+      <strong>Achado central:</strong> o desperdício de ~30% é o principal problema e atinge igualmente todas as regiões e
+      setores. A auditoria de qualidade mostrou também que a base é <b>sintética</b>: chuva, reservatório, alerta e população
+      não se relacionam como na realidade (0 de 5 testes de coerência aprovados). O projeto documenta isso de forma
+      transparente e deixa o pipeline pronto para receber dados oficiais.
+    </div>
+  </section>
+
+  <section id="perguntas">
+    <h2>Perguntas de negócio</h2>
+    <p class="sub">A análise foi guiada por seis perguntas.</p>
+    <div class="grid-3">
+      <div class="card"><span class="num">1</span><h3>Onde se consome mais?</h3><p>Quais regiões, estados e setores concentram o consumo de água?</p></div>
+      <div class="card"><span class="num">2</span><h3>Quanto se perde?</h3><p>Qual o volume desperdiçado e onde o desperdício é mais grave?</p></div>
+      <div class="card"><span class="num">3</span><h3>Há risco hídrico?</h3><p>Como estão os reservatórios e com que frequência ocorrem alertas elevados?</p></div>
+      <div class="card"><span class="num">4</span><h3>Como evolui no tempo?</h3><p>Existe tendência de crescimento ou sazonalidade no consumo?</p></div>
+      <div class="card"><span class="num">5</span><h3>O clima explica?</h3><p>Chuva e temperatura se relacionam com consumo e reservatórios?</p></div>
+      <div class="card"><span class="num">6</span><h3>Os dados são confiáveis?</h3><p>As variáveis são coerentes entre si e com dados oficiais do IBGE?</p></div>
+    </div>
+  </section>
+
+  <section id="indicadores">
+    <h2>Indicadores analisados</h2>
+    <p class="sub">KPIs calculados no notebook e recalculados dinamicamente no dashboard conforme os filtros.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>KPI</th><th>Fórmula</th><th>Valor (base completa)</th></tr></thead>
+        <tbody>
+          <tr><td>Consumo total</td><td><code>Σ consumo_milhoes_litros</code></td><td class="n">92,6 bilhões de L</td></tr>
+          <tr><td>Volume desperdiçado</td><td><code>Σ consumo × desperdício% ÷ 100</code></td><td class="n">27,9 bilhões de L</td></tr>
+          <tr><td>Taxa de desperdício (ponderada)</td><td><code>volume desperdiçado ÷ consumo total</code></td><td class="n">30,1%</td></tr>
+          <tr><td>Consumo per capita médio</td><td><code>média de consumo_per_capita</code></td><td class="n">267 L/hab/dia</td></tr>
+          <tr><td>Nível médio dos reservatórios</td><td><code>média de reservatorios_percentual</code></td><td class="n">52,2%</td></tr>
+          <tr><td>Registros com reservatório crítico</td><td><code>% de registros com reservatório &lt; 30%</code></td><td class="n">26,8%</td></tr>
+          <tr><td>Registros em alerta elevado</td><td><code>% com nível de alerta Alto ou Crítico</code></td><td class="n">50,7%</td></tr>
+          <tr><td>Tendência anual do consumo</td><td><code>inclinação da regressão linear (NumPy)</code></td><td class="n">−0,06% ao ano</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="resultados">
+    <h2>Principais resultados</h2>
+    <p class="sub">Gráficos gerados com Matplotlib e Seaborn no notebook. No dashboard, as versões interativas usam Plotly.</p>
+    <div class="grid-2">
+      <figure>
+        <img src="imagens/01_consumo_regiao.png" alt="Barras horizontais: consumo total por região e consumo médio por registro" loading="lazy">
+        <figcaption><b>Totais enganam.</b> O Sudeste lidera o consumo total (35%) porque tem mais séries na base. Por registro,
+          todas as regiões consomem cerca de 21 mi L.</figcaption>
+      </figure>
+      <figure>
+        <img src="imagens/02_desperdicio_setor.png" alt="Barras empilhadas: consumo efetivo e desperdiçado por setor" loading="lazy">
+        <figcaption><b>Desperdício sistêmico.</b> Todos os setores perdem cerca de 30% da água consumida. O problema é estrutural,
+          não de um setor específico.</figcaption>
+      </figure>
+      <figure class="fig-wide">
+        <img src="imagens/03_serie_temporal.png" alt="Linha do consumo mensal de 2015 a 2024 com média móvel e tendência" loading="lazy">
+        <figcaption><b>Consumo estável.</b> A média móvel de 12 meses oscila em torno de 770 mi L/mês, e a tendência linear é
+          praticamente plana (−0,06% ao ano).</figcaption>
+      </figure>
+      <figure>
+        <img src="imagens/04_heatmap_ano_mes.png" alt="Mapa de calor do consumo por ano e mês" loading="lazy">
+        <figcaption><b>Sem sazonalidade.</b> Os meses de pico mudam de posição a cada ano. Não há um padrão repetido.</figcaption>
+      </figure>
+      <figure>
+        <img src="imagens/07_correlacao.png" alt="Matriz de correlação entre as variáveis numéricas" loading="lazy">
+        <figcaption><b>Variáveis independentes.</b> A maior correlação é |r| = 0,043. O clima não explica o consumo nem os
+          reservatórios.</figcaption>
+      </figure>
+      <figure class="fig-wide">
+        <img src="imagens/08_chuva_alerta_reservatorio.png" alt="Dispersão chuva versus reservatórios e boxplot de reservatórios por nível de alerta" loading="lazy">
+        <figcaption><b>Inconsistência detectada.</b> Mais chuva não eleva os reservatórios, e o nível de alerta "Crítico" tem a
+          mesma distribuição de reservatório que o "Baixo". O alerta não é derivado dos dados.</figcaption>
+      </figure>
+      <figure class="fig-wide">
+        <img src="imagens/09_populacao_ibge.png" alt="Barras agrupadas: população por UF na base e na estimativa do IBGE" loading="lazy">
+        <figcaption><b>Integração com o IBGE.</b> A população da base (~3 milhões em média em qualquer estado) não corresponde à
+          estimativa oficial obtida via API (SP: 46,6 milhões).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="tecnologias">
+    <h2>Tecnologias utilizadas</h2>
+    <p class="sub">Tecnologias obrigatórias da disciplina e recursos avançados.</p>
+    <div style="margin-bottom:24px">
+      <span class="pill">Python</span><span class="pill">Pandas</span><span class="pill">NumPy</span><span class="pill">Matplotlib</span>
+      <span class="pill">Seaborn</span><span class="pill">Plotly</span><span class="pill">Streamlit</span><span class="pill">SQLAlchemy</span>
+      <span class="pill">SQLite</span><span class="pill">Requests</span><span class="pill">API do IBGE</span><span class="pill">Jupyter</span>
+      <span class="pill">GitHub</span><span class="pill">GitHub Pages</span><span class="pill">Streamlit Community Cloud</span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Funcionalidades intermediárias</h3>
+        <ul class="check">
+          <li><b>Filtros múltiplos</b>: período, região, UF (dependente da região), setor e nível de alerta</li>
+          <li><b>KPIs dinâmicos</b> com variação em relação ao ano anterior</li>
+          <li><b>Gráficos interativos</b> (Plotly) com tooltips e zoom</li>
+          <li><b>Análise temporal</b>: média móvel, variação anual, tendência e sazonalidade</li>
+          <li><b>Tratamento avançado</b>: validação de esquema e domínio, outliers (IQR), categorias ordenadas</li>
+          <li><b>Integração entre tabelas</b> via JOINs no modelo relacional</li>
+          <li><b>Upload de arquivos</b> CSV com validação</li>
+          <li><b>Dashboard em seções</b>, <b>visualizações comparativas</b> e <b>análise geográfica</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Funcionalidades avançadas</h3>
+        <ul class="check">
+          <li><b>Consumo de API</b> (Requests): localidades, malhas e população do IBGE, com cache</li>
+          <li><b>Persistência em banco</b>: SQLAlchemy ORM + SQLite</li>
+          <li><b>Modelagem relacional</b>: esquema estrela com 5 tabelas e chaves estrangeiras</li>
+          <li><b>Dashboard multipágina</b> com <code>st.navigation</code> (6 páginas)</li>
+          <li><b>Mapa interativo</b>: coroplético por UF com GeoJSON oficial (Plotly)</li>
+          <li><b>Atualização dinâmica</b>: botão que consulta a API do IBGE novamente</li>
+          <li><b>Séries temporais avançadas</b>: média móvel, variação anual, regressão (NumPy)</li>
+          <li><b>Correlação estatística</b>: Pearson/Spearman, p-valor e limiar de significância</li>
+          <li><b>Integração de múltiplas fontes</b>: CSV + API + banco</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin:36px 0 14px">Fluxo dos dados</h3>
+    <div class="pipeline">
+      <div class="step">CSV bruto<small>dados/</small></div><span class="arrow">→</span>
+      <div class="step">Validação e limpeza<small>utils/dados.py</small></div><span class="arrow">→</span>
+      <div class="step">Engenharia de atributos<small>11 novos campos</small></div><span class="arrow">→</span>
+      <div class="step">API do IBGE<small>utils/api_ibge.py</small></div><span class="arrow">→</span>
+      <div class="step">SQLite relacional<small>database/agua.db</small></div><span class="arrow">→</span>
+      <div class="step">Notebook e dashboard<small>notebooks/ · app.py</small></div>
+    </div>
+  </section>
+
+  <section id="arquivos">
+    <h2>Arquivos do projeto</h2>
+    <p class="sub">Documentação, análise e dados.</p>
+    <div class="grid-3 files">
+      <a class="card" data-link="readme" href="README.md" target="_blank" rel="noopener"><span class="ext">README.md</span><h3>Documentação</h3><p>Visão geral, estrutura, execução local e publicação.</p></a>
+      <a class="card" data-link="notebook" href="notebooks/analise_consumo_agua.ipynb" target="_blank" rel="noopener"><span class="ext">.ipynb</span><h3>Notebook de análise</h3><p>Da introdução à conclusão, com código, gráficos e interpretação.</p></a>
+      <a class="card" href="dados/simulacao_consumo_agua_brasil.csv" download><span class="ext">.csv</span><h3>Base de dados</h3><p>4.440 registros mensais (2015–2024), 14 colunas.</p></a>
+      <a class="card" data-link="app" href="app.py" target="_blank" rel="noopener"><span class="ext">app.py · paginas/</span><h3>Código do dashboard</h3><p>Streamlit multipágina com filtros globais e upload.</p></a>
+      <a class="card" href="database/agua.db" download><span class="ext">.db</span><h3>Banco SQLite</h3><p>Modelo relacional criado com SQLAlchemy.</p></a>
+      <a class="card" data-link="repo" href="#" target="_blank" rel="noopener"><span class="ext">GitHub</span><h3>Repositório</h3><p>Código-fonte completo e histórico de versões.</p></a>
+    </div>
+    <h3 style="margin:36px 0 14px">Estrutura</h3>
+<pre class="tree">projeto/
+├── app.py                 <span class="c"># entrada do dashboard: navegação, upload e filtros globais</span>
+├── paginas/               <span class="c"># 6 páginas do Streamlit</span>
+├── utils/                 <span class="c"># dados.py · banco.py · api_ibge.py · estilo.py · app_comum.py</span>
+├── dados/                 <span class="c"># CSV original + cache das APIs do IBGE</span>
+├── database/              <span class="c"># agua.db (SQLite)</span>
+├── notebooks/             <span class="c"># analise_consumo_agua.ipynb</span>
+├── imagens/               <span class="c"># gráficos exportados pelo notebook</span>
+├── index.html             <span class="c"># esta página (GitHub Pages)</span>
+├── requirements.txt
+└── README.md</pre>
+  </section>
+
+  <section id="dashboard">
+    <h2>Dashboard interativo</h2>
+    <p class="sub">Publicado no Streamlit Community Cloud. Os filtros da barra lateral valem para todas as páginas, e KPIs,
+      gráficos e textos de interpretação são recalculados a cada seleção.</p>
+    <div class="grid-3">
+      <div class="card"><h3>📊 Visão geral</h3><p>Problema, 8 KPIs com variação anual, consumo por região e setor, alertas e ranking de estados.</p></div>
+      <div class="card"><h3>📈 Análise temporal</h3><p>Série mensal com média móvel e tendência, variação anual, mapa de calor, sazonalidade e comparação regional.</p></div>
+      <div class="card"><h3>🗺️ Mapa e IBGE</h3><p>Mapa coroplético por UF e comparação da população com a API do IBGE, com atualização dinâmica.</p></div>
+      <div class="card"><h3>🔗 Correlações</h3><p>Matriz Pearson/Spearman, p-valores, dispersão com regressão, alerta × reservatório e distribuições.</p></div>
+      <div class="card"><h3>🗄️ Dados e banco</h3><p>Relatório de tratamento, auditoria de consistência, diagrama relacional, consultas SQL e download.</p></div>
+      <div class="card"><h3>✅ Conclusões</h3><p>Achados, recomendações priorizadas, limitações e próximos passos.</p></div>
+    </div>
+    <div class="btns" style="margin-top:24px">
+      <a class="btn primary" data-link="streamlit" href="#" target="_blank" rel="noopener" style="background:var(--blue);color:#fff">▶ Abrir o dashboard no Streamlit</a>
+    </div>
+  </section>
+
+  <section id="conclusao">
+    <h2>Conclusão</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>O que os dados mostram</h3>
+        <ul class="check">
+          <li>O <b>desperdício de ~30%</b> é a principal alavanca de ação e pede programas estruturais de redução de perdas.</li>
+          <li><b>1 em cada 4 registros</b> tem reservatório crítico, o que justifica monitoramento contínuo.</li>
+          <li>O consumo está <b>estável</b>, sem tendência nem sazonalidade.</li>
+          <li>Comparar regiões exige <b>normalização</b>: os totais refletem o número de séries, não a intensidade de uso.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Lição metodológica</h3>
+        <p>Uma boa análise exploratória também confere se as relações <b>esperadas</b> existem. Aqui a auditoria mostrou que a base
+          é sintética, então os KPIs descritivos valem como exercício, mas conclusões causais não seriam válidas. A recomendação
+          é recalcular o nível de alerta com regras objetivas, validar a população com o IBGE e aplicar o mesmo pipeline a dados
+          oficiais (SNIS/ANA).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="objetivo">
+    <h2>Objetivo pedagógico</h2>
+    <p class="sub">Projeto individual da disciplina <b>Linguagens de Programação</b> (Sistemas de Informação). Ele aplica, de ponta
+      a ponta, as bibliotecas estudadas: Pandas para manipulação, Matplotlib/Seaborn para visualização, SQLAlchemy para
+      persistência, Requests para integração e Streamlit para comunicar resultados. O foco é <b>apoiar decisões</b> com dados
+      bem tratados e interpretados.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Erick Ribeiro · Sistemas de Informação · Linguagens de Programação</span>
+    <span>Fontes: base fornecida pelo professor (simulada) · APIs públicas do IBGE</span>
+  </div>
+</footer>
+
+<script>
+  // ⚙️ Configure aqui os links do projeto depois da publicação.
+  const CONFIG = {
+    repo: "https://github.com/SEU_USUARIO/SEU_REPOSITORIO",
+    streamlit: "https://SEU-APP.streamlit.app",
+    branch: "main",
+  };
+
+  const repoPath = CONFIG.repo.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "");
+  const configurado = !repoPath.includes("SEU_");
+  const links = {
+    repo: CONFIG.repo,
+    streamlit: CONFIG.streamlit,
+    readme: `${CONFIG.repo}/blob/${CONFIG.branch}/README.md`,
+    app: `${CONFIG.repo}/blob/${CONFIG.branch}/app.py`,
+    notebook: `https://nbviewer.org/github/${repoPath}/blob/${CONFIG.branch}/notebooks/analise_consumo_agua.ipynb`,
+  };
+  document.querySelectorAll("[data-link]").forEach((el) => {
+    const chave = el.dataset.link;
+    if (chave === "streamlit" && CONFIG.streamlit.includes("SEU-APP")) return;
+    if (chave !== "streamlit" && !configurado) return;
+    el.href = links[chave];
+  });
+</script>
+</body>
+</html>
