@@ -59,13 +59,15 @@ c3.metric("Taxa de desperdício", fmt(k["desperdicio_ponderado"], 1, "%"), delta
 c4.metric("Per capita (L/hab/dia)", fmt(k["per_capita_medio"], 0), delta("per_capita_medio", "pct"),
           delta_color="inverse", border=True, help="Média de `consumo_per_capita`. Referência ONU: 110 L/hab/dia.")
 c5, c6, c7, c8 = st.columns(4)
-c5.metric("Nível médio dos reservatórios", fmt(k["reservatorio_medio"], 1, "%"), delta("reservatorio_medio", "pp"),
+c5.metric("Reservatório médio", fmt(k["reservatorio_medio"], 1, "%"), delta("reservatorio_medio", "pp"),
           border=True)
-c6.metric("Registros com reservatório < 30%", fmt(k["pct_reservatorio_critico"], 1, "%"),
-          delta("pct_reservatorio_critico", "pp"), delta_color="inverse", border=True)
-c7.metric("Registros em alerta Alto/Crítico", fmt(k["pct_alerta_elevado"], 1, "%"),
-          delta("pct_alerta_elevado", "pp"), delta_color="inverse", border=True)
-c8.metric("Chuva média mensal", fmt(k["chuva_media"], 0, " mm"), delta("chuva_media", "pct"),
+c6.metric("Reservatório < 30%", fmt(k["pct_reservatorio_critico"], 1, "%"),
+          delta("pct_reservatorio_critico", "pp"), delta_color="inverse", border=True,
+          help="% dos registros com reservatório abaixo de 30% da capacidade.")
+c7.metric("Alerta Alto/Crítico", fmt(k["pct_alerta_elevado"], 1, "%"),
+          delta("pct_alerta_elevado", "pp"), delta_color="inverse", border=True,
+          help="% dos registros com nível de alerta Alto ou Crítico.")
+c8.metric("Chuva média", fmt(k["chuva_media"], 0, " mm"), delta("chuva_media", "pct"),
           delta_color="normal", border=True)
 
 # ---------------------------------------------------------------- distribuição

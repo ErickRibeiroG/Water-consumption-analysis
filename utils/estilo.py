@@ -1,8 +1,11 @@
 """Identidade visual compartilhada por Matplotlib/Seaborn e Plotly."""
 
+from pathlib import Path
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib import font_manager
 from matplotlib.colors import LinearSegmentedColormap
 
 # Tinta e superfícies
@@ -30,12 +33,24 @@ CMAP_SEQ = LinearSegmentedColormap.from_list("agua_seq", SEQUENCIAL)
 CMAP_DIV = LinearSegmentedColormap.from_list("agua_div", DIVERGENTE)
 ESCALA_SEQ_PLOTLY = [[i / (len(SEQUENCIAL) - 1), c] for i, c in enumerate(SEQUENCIAL)]
 
-FONTE = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+# Fonte da identidade visual: Comfortaa (Google Fonts, licença OFL).
+# No navegador ela vem do Google Fonts (ver .streamlit/config.toml); no Matplotlib, dos .ttf em fontes/.
+FONTE = "Comfortaa, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+PASTA_FONTES = Path(__file__).resolve().parent.parent / "fontes"
+
+
+def registrar_fontes() -> str:
+    """Registra os .ttf da Comfortaa no Matplotlib. Retorna a família a usar (com fallback)."""
+    arquivos = sorted(PASTA_FONTES.glob("Comfortaa-*.ttf"))
+    for arquivo in arquivos:
+        font_manager.fontManager.addfont(str(arquivo))
+    return "Comfortaa" if arquivos else "sans-serif"
 
 
 def aplicar_estilo_mpl():
     """Tema do Seaborn/Matplotlib: grade discreta, eixos leves, sem bordas superiores."""
-    sns.set_theme(style="whitegrid", palette=CATEGORICA, rc={
+    familia = registrar_fontes()
+    sns.set_theme(font=familia, style="whitegrid", palette=CATEGORICA, rc={
         "figure.facecolor": SUPERFICIE,
         "axes.facecolor": SUPERFICIE,
         "axes.edgecolor": EIXO,
@@ -57,7 +72,6 @@ def aplicar_estilo_mpl():
         "legend.frameon": False,
         "legend.fontsize": 9,
         "lines.linewidth": 2,
-        "font.family": "sans-serif",
         "savefig.dpi": 150,
         "savefig.bbox": "tight",
         "savefig.facecolor": SUPERFICIE,

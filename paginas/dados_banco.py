@@ -101,24 +101,24 @@ with tab3:
     st.graphviz_chart("""
 digraph {
   rankdir=LR; bgcolor="transparent"; size="9,4.2";
-  node [shape=plain, fontname="Helvetica", fontsize=10];
+  node [shape=plain, fontname="Comfortaa", fontsize=10];
   edge [color="#898781", arrowhead=crow, arrowtail=none];
   regioes [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
-    <tr><td bgcolor="#2a78d6"><font color="white"><b>regioes</b></font></td></tr>
+    <tr><td width="130" bgcolor="#2a78d6"><font color="white"><b>regioes</b></font></td></tr>
     <tr><td align="left">🔑 id</td></tr><tr><td align="left">nome</td></tr></table>>];
   estados [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
-    <tr><td bgcolor="#2a78d6"><font color="white"><b>estados</b></font></td></tr>
+    <tr><td width="210" bgcolor="#2a78d6"><font color="white"><b>estados</b></font></td></tr>
     <tr><td align="left">🔑 id (código IBGE)</td></tr><tr><td align="left">sigla</td></tr>
     <tr><td align="left">nome</td></tr><tr><td align="left">populacao_ibge</td></tr>
     <tr><td align="left">🔗 regiao_id</td></tr></table>>];
   setores [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
-    <tr><td bgcolor="#2a78d6"><font color="white"><b>setores</b></font></td></tr>
+    <tr><td width="130" bgcolor="#2a78d6"><font color="white"><b>setores</b></font></td></tr>
     <tr><td align="left">🔑 id</td></tr><tr><td align="left">nome</td></tr></table>>];
   niveis_alerta [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
-    <tr><td bgcolor="#2a78d6"><font color="white"><b>niveis_alerta</b></font></td></tr>
+    <tr><td width="170" bgcolor="#2a78d6"><font color="white"><b>niveis_alerta</b></font></td></tr>
     <tr><td align="left">🔑 id</td></tr><tr><td align="left">nome</td></tr><tr><td align="left">score</td></tr></table>>];
   medicoes [label=<<table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
-    <tr><td bgcolor="#0d366b"><font color="white"><b>medicoes (fato)</b></font></td></tr>
+    <tr><td width="290" bgcolor="#0d366b"><font color="white"><b>medicoes (fato)</b></font></td></tr>
     <tr><td align="left">🔑 id</td></tr><tr><td align="left">data</td></tr>
     <tr><td align="left">🔗 estado_id</td></tr><tr><td align="left">🔗 setor_id</td></tr>
     <tr><td align="left">🔗 nivel_alerta_id</td></tr><tr><td align="left">consumo_milhoes_litros</td></tr>

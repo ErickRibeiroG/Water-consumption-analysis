@@ -25,7 +25,7 @@ c1, c2, c3, c4 = st.columns(4)
 c1.metric("Consumo total", f"{fmt(k['consumo_total'] / 1000, 1)} bi L", border=True)
 c2.metric("Perdido com desperdício", f"{fmt(k['volume_desperdicado'] / 1000, 1)} bi L", border=True)
 c3.metric("Alerta Alto/Crítico", fmt(k["pct_alerta_elevado"], 1, "%"), border=True)
-c4.metric("Testes de coerência aprovados", f"{int(aud['Coerente'].sum())} de {len(aud)}", border=True)
+c4.metric("Testes de coerência", f"{int(aud['Coerente'].sum())} de {len(aud)}", border=True)
 
 st.markdown(f"""
 ### Principais achados

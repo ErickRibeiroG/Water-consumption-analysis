@@ -53,6 +53,7 @@ As respostas ficam em cache em `dados/ibge/`, então o dashboard funciona mesmo 
 
 **Obrigatórias:** Python · Pandas · Matplotlib · Seaborn · Streamlit · GitHub
 **Complementares:** NumPy · Plotly · SQLAlchemy · SQLite · Requests · Jupyter
+**Identidade visual:** fonte [Comfortaa](https://fonts.google.com/specimen/Comfortaa) (licença OFL) no dashboard, nos gráficos e na página do projeto
 
 ## 4. Funcionalidades
 
@@ -102,6 +103,7 @@ As respostas ficam em cache em `dados/ibge/`, então o dashboard funciona mesmo 
 ├── database/agua.db        # banco SQLite gerado
 ├── notebooks/              # analise_consumo_agua.ipynb
 ├── imagens/                # gráficos exportados pelo notebook
+├── fontes/                 # Comfortaa (.ttf + licença OFL) usada nos gráficos Matplotlib
 ├── .streamlit/config.toml  # tema do dashboard
 ├── index.html              # página de apresentação (GitHub Pages)
 ├── requirements.txt
