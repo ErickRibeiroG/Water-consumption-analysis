@@ -8,6 +8,7 @@ from utils.dados import formatar_num as fmt
 df, base, f = app_comum.obter_contexto()
 pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
 
+st.markdown("### Disciplina: Linguagens de Programação\n\n**Professor:** Alexandre Neves Louzada  \n**Aluno:** Erick Ribeiro Graciano")
 st.title("Consumo de Água no Brasil")
 st.markdown(
     "**Painel analítico de consumo, desperdício e segurança hídrica por região, estado e setor (2015–2024).**"

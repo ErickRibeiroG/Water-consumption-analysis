@@ -1,3 +1,8 @@
+### Disciplina: Linguagens de Programação
+
+**Professor:** Alexandre Neves Louzada  
+**Aluno:** Erick Ribeiro Graciano
+
 # 💧 Consumo de Água no Brasil: análise e dashboard interativo
 
 Projeto de análise e visualização de dados sobre **consumo, desperdício e segurança hídrica** em 20 estados brasileiros e
