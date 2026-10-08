@@ -53,7 +53,7 @@ As respostas ficam em cache em `dados/ibge/`, então o dashboard funciona mesmo 
 
 **Obrigatórias:** Python · Pandas · Matplotlib · Seaborn · Streamlit · GitHub
 **Complementares:** NumPy · Plotly · SQLAlchemy · SQLite · Requests · Jupyter
-**Identidade visual:** fonte [Comfortaa](https://fonts.google.com/specimen/Comfortaa) (licença OFL) no dashboard, nos gráficos e na página do projeto
+**Identidade visual:** fonte [Comfortaa](https://fonts.google.com/specimen/Comfortaa) (licença OFL) no dashboard, nos gráficos e na página do projeto, com **tema claro e escuro**
 
 ## 4. Funcionalidades
 
@@ -102,7 +102,8 @@ As respostas ficam em cache em `dados/ibge/`, então o dashboard funciona mesmo 
 ├── dados/                  # CSV original + cache JSON/GeoJSON do IBGE
 ├── database/agua.db        # banco SQLite gerado
 ├── notebooks/              # analise_consumo_agua.ipynb
-├── imagens/                # gráficos exportados pelo notebook
+├── imagens/                # gráficos exportados pelo notebook (tema claro)
+│   └── dark/               # mesmos gráficos no tema escuro (usados pelo index.html)
 ├── fontes/                 # Comfortaa (.ttf + licença OFL) usada nos gráficos Matplotlib
 ├── .streamlit/config.toml  # tema do dashboard
 ├── index.html              # página de apresentação (GitHub Pages)
@@ -133,6 +134,20 @@ streamlit run app.py
 
 O notebook pode ser aberto com `jupyter notebook notebooks/analise_consumo_agua.ipynb`. Ele já está salvo com todas as
 saídas.
+
+### Tema claro e escuro
+- **Dashboard:** segue o tema do sistema operacional. Também é possível escolher em **⋮ → Light / Dark / System**.
+  Os gráficos Plotly trocam de tema na hora. Os gráficos Matplotlib/Seaborn são redesenhados na interação seguinte,
+  porque o Streamlit só informa o tema ao Python quando o script é reexecutado.
+- **Página do projeto (`index.html`):** segue o sistema. O botão ☾/☀ no menu fixa a escolha, que fica salva no navegador.
+  As imagens trocam entre `imagens/` e `imagens/dark/`.
+- **Regerar as imagens escuras** (depois de alterar o notebook):
+
+  ```bash
+  # PowerShell: $env:TEMA_GRAFICOS="dark"   |   bash: export TEMA_GRAFICOS=dark
+  jupyter nbconvert --to notebook --execute --output-dir saida_temp notebooks/analise_consumo_agua.ipynb
+  # a cópia executada em saida_temp/ pode ser apagada; só as imagens em imagens/dark/ interessam
+  ```
 
 ## 7. Pipeline de dados
 

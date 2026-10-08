@@ -9,7 +9,8 @@ from utils import app_comum, dados, estilo
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
-estilo.aplicar_estilo_mpl()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
+estilo.aplicar_estilo_mpl(pal)
 MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 
 st.title("Análise temporal")
@@ -30,11 +31,11 @@ with tab1:
                     line=dict(color="#9ec5f4", width=1.5),
                     hovertemplate="%{x|%b/%Y}: %{y:,.1f} mi L<extra></extra>")
     fig.add_scatter(x=m.index, y=m["consumo_mm12"], name="Média móvel 12 meses", mode="lines",
-                    line=dict(color=estilo.PRIMARIA, width=2.5),
+                    line=dict(color=pal.PRIMARIA, width=2.5),
                     hovertemplate="%{x|%b/%Y}: %{y:,.1f} mi L<extra></extra>")
     if "consumo_tendencia" in m:
         fig.add_scatter(x=m.index, y=m["consumo_tendencia"], name="Tendência linear", mode="lines",
-                        line=dict(color=estilo.TINTA_SEC, width=1.5, dash="dash"),
+                        line=dict(color=pal.TINTA_SEC, width=1.5, dash="dash"),
                         hovertemplate="%{x|%b/%Y}: %{y:,.1f} mi L<extra></extra>")
     fig.update_layout(hovermode="x unified", yaxis_title="Consumo (milhões de litros)")
     st.plotly_chart(estilo.estilizar_plotly(fig, 400, titulo="Consumo mensal, média móvel e tendência"),
@@ -46,7 +47,7 @@ with tab1:
     c1, c2 = st.columns([3, 2])
     fig = px.bar(anual, x="ano", y="consumo", labels={"ano": "", "consumo": "Consumo (mi L)"},
                  text=anual["var"].map(lambda v: "" if np.isnan(v) else f"{v:+.1f}%"))
-    fig.update_traces(marker_color=estilo.PRIMARIA, textposition="outside", cliponaxis=False,
+    fig.update_traces(marker_color=pal.PRIMARIA, textposition="outside", cliponaxis=False,
                       hovertemplate="%{x}: %{y:,.0f} mi L<extra></extra>")
     fig.update_xaxes(dtick=1)
     c1.plotly_chart(estilo.estilizar_plotly(fig, 340, legenda=False,
@@ -66,7 +67,7 @@ with tab1:
     pivo = df.pivot_table(index="ano", columns="mes", values="consumo_milhoes_litros", aggfunc="sum")
     pivo.columns = [MESES[c - 1] for c in pivo.columns]
     fig_hm, ax = plt.subplots(figsize=(12, 0.45 * len(pivo) + 1.2))
-    sns.heatmap(pivo, cmap=estilo.CMAP_SEQ, annot=True, fmt=".0f", linewidths=2, linecolor=estilo.SUPERFICIE,
+    sns.heatmap(pivo, cmap=pal.CMAP_SEQ, annot=True, fmt=".0f", linewidths=2, linecolor=pal.SUPERFICIE,
                 cbar_kws={"label": "Consumo (mi L)", "shrink": 0.8}, annot_kws={"size": 8}, ax=ax)
     ax.set_xlabel("")
     ax.set_ylabel("")
@@ -102,9 +103,9 @@ with tab2:
                  ("temperatura_media", "Temperatura (°C)")]
     fig_s, eixos = plt.subplots(2, 2, figsize=(12, 7), sharex=True)
     for ax, (col, rotulo) in zip(eixos.flat, variaveis):
-        sns.lineplot(data=df, x="mes", y=col, estimator="mean", errorbar=("ci", 95), color=estilo.PRIMARIA,
+        sns.lineplot(data=df, x="mes", y=col, estimator="mean", errorbar=("ci", 95), color=pal.PRIMARIA,
                      marker="o", markersize=5, ax=ax)
-        ax.axhline(df[col].mean(), color=estilo.TINTA_MUTED, linewidth=1)
+        ax.axhline(df[col].mean(), color=pal.TINTA_MUTED, linewidth=1)
         ax.set_title(rotulo, fontsize=11)
         ax.set_xlabel("")
         ax.set_ylabel("")
@@ -156,9 +157,9 @@ with tab3:
     col = opcoes[escolha]
     reg = df.groupby(["ano", "regiao"], observed=True)[col].mean().reset_index()
     reg["regiao"] = reg["regiao"].astype(str)
-    fig = px.line(reg, x="ano", y=col, color="regiao", markers=True, color_discrete_map=estilo.CORES_REGIAO,
+    fig = px.line(reg, x="ano", y=col, color="regiao", markers=True, color_discrete_map=pal.CORES_REGIAO,
                   category_orders={"regiao": dados.ORDEM_REGIOES}, labels={"ano": "", col: escolha})
-    fig.update_traces(line=dict(width=2), marker=dict(size=8, line=dict(color=estilo.SUPERFICIE, width=2)),
+    fig.update_traces(line=dict(width=2), marker=dict(size=8, line=dict(color=pal.SUPERFICIE, width=2)),
                       hovertemplate="%{x}: %{y:,.2f}<extra>%{fullData.name}</extra>")
     fig.update_xaxes(dtick=1)
     st.plotly_chart(estilo.estilizar_plotly(fig, 420, titulo=f"{escolha} por região e ano"), width="stretch")
@@ -166,7 +167,7 @@ with tab3:
     tabela = reg.pivot(index="ano", columns="regiao", values=col)
     tabela = tabela[[r for r in dados.ORDEM_REGIOES if r in tabela.columns]]
     with st.expander("Ver tabela"):
-        st.dataframe(tabela.style.format("{:.2f}").background_gradient(cmap=estilo.CMAP_SEQ, axis=None),
+        st.dataframe(tabela.style.format("{:.2f}").background_gradient(cmap=pal.CMAP_SEQ, axis=None),
                      width="stretch")
 
     if not tabela.empty and tabela.shape[1] > 1:

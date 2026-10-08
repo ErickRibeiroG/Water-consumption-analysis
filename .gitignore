@@ -8,6 +8,7 @@ __pycache__/
 
 # Jupyter
 .ipynb_checkpoints/
+saida_temp/
 
 # Sistema / editores
 .DS_Store

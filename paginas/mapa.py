@@ -5,6 +5,7 @@ from utils import app_comum, estilo
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
 
 st.title("Mapa e integração com o IBGE")
 st.markdown(
@@ -52,18 +53,18 @@ todas = ibge[["uf", "nome_uf"]]
 fig = go.Figure()
 # Camada base: todas as UFs em cinza (inclusive as que não estão na base).
 fig.add_choropleth(geojson=geo, featureidkey="properties.uf", locations=todas["uf"], z=[0] * len(todas),
-                   colorscale=[[0, "#ecebe7"], [1, "#ecebe7"]], showscale=False,
-                   marker_line_color="white", marker_line_width=0.8,
+                   colorscale=[[0, pal.SEM_DADOS], [1, pal.SEM_DADOS]], showscale=False,
+                   marker_line_color=pal.SUPERFICIE, marker_line_width=0.8,
                    customdata=todas["nome_uf"], hovertemplate="%{customdata}: sem dados no recorte<extra></extra>")
 fig.add_choropleth(geojson=geo, featureidkey="properties.uf", locations=por_uf["uf"], z=por_uf["valor"],
-                   colorscale=estilo.ESCALA_SEQ_PLOTLY, marker_line_color="white", marker_line_width=0.8,
+                   colorscale=pal.ESCALA_SEQ_PLOTLY, marker_line_color=pal.SUPERFICIE, marker_line_width=0.8,
                    colorbar=dict(title=dict(text=escolha, side="top"), orientation="h", thickness=10, len=0.6,
                                  x=0.5, xanchor="center", y=-0.02, yanchor="top"),
                    customdata=por_uf["nome_uf"], hovertemplate="<b>%{customdata}</b><br>" + escolha +
                    ": %{z:,.2f}<extra></extra>")
 fig.update_geos(fitbounds="locations", visible=False, bgcolor="rgba(0,0,0,0)", projection_type="mercator")
 fig.update_layout(height=600, margin=dict(l=0, r=0, t=10, b=60), paper_bgcolor="rgba(0,0,0,0)", separators=",.",
-                  font=dict(family=estilo.FONTE, color=estilo.TINTA_SEC))
+                  font=dict(family=pal.FONTE))
 
 c_mapa, c_rank = st.columns([3, 2])
 c_mapa.plotly_chart(fig, width="stretch")
@@ -102,10 +103,10 @@ pop = pop.sort_values("populacao_ibge", ascending=False)
 
 fig = go.Figure()
 fig.add_bar(x=pop["uf"], y=pop["populacao_ibge"] / 1e6, name="IBGE 2021 (oficial)",
-            marker=dict(color=estilo.PRIMARIA, line=dict(color=estilo.SUPERFICIE, width=2)),
+            marker=dict(color=pal.PRIMARIA, line=dict(color=pal.SUPERFICIE, width=2)),
             hovertemplate="%{x}: %{y:.2f} mi hab.<extra>IBGE</extra>")
 fig.add_bar(x=pop["uf"], y=pop["pop_base_media"] / 1e6, name="Base simulada (média)",
-            marker=dict(color=estilo.CATEGORICA[1], line=dict(color=estilo.SUPERFICIE, width=2)),
+            marker=dict(color=pal.CATEGORICA[1], line=dict(color=pal.SUPERFICIE, width=2)),
             hovertemplate="%{x}: %{y:.2f} mi hab.<extra>Base</extra>")
 fig.update_layout(barmode="group", yaxis_title="Milhões de habitantes")
 st.plotly_chart(estilo.estilizar_plotly(fig, 380), width="stretch")

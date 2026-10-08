@@ -12,7 +12,8 @@ from utils.dados import ROTULOS
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
-estilo.aplicar_estilo_mpl()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
+estilo.aplicar_estilo_mpl(pal)
 
 st.title("Correlações e distribuições")
 st.markdown("O clima explica o consumo? O nível de alerta reflete os reservatórios? Aqui as relações entre as "
@@ -55,8 +56,8 @@ rotulos = [ROTULOS.get(c, c) for c in selecionadas]
 with c2:
     fig, ax = plt.subplots(figsize=(9, 6.5))
     mascara = np.triu(np.ones_like(corr, dtype=bool), k=1)
-    sns.heatmap(corr, mask=mascara, cmap=estilo.CMAP_DIV, vmin=-1, vmax=1, center=0, annot=True, fmt=".2f",
-                linewidths=2, linecolor=estilo.SUPERFICIE, square=True, xticklabels=rotulos, yticklabels=rotulos,
+    sns.heatmap(corr, mask=mascara, cmap=pal.CMAP_DIV, vmin=-1, vmax=1, center=0, annot=True, fmt=".2f",
+                linewidths=2, linecolor=pal.SUPERFICIE, square=True, xticklabels=rotulos, yticklabels=rotulos,
                 cbar_kws={"label": f"Correlação de {metodo}", "shrink": 0.75}, annot_kws={"size": 9}, ax=ax)
     ax.set_title(f"Matriz de correlação ({metodo})")
     ax.tick_params(axis="x", rotation=40)
@@ -110,11 +111,11 @@ r_xy = df[x].astype(float).corr(df[y].astype(float))
 xs = np.linspace(df[x].min(), df[x].max(), 50)
 fig = go.Figure()
 fig.add_scatter(x=pts[x], y=pts[y], mode="markers", name="Registros",
-                marker=dict(color=estilo.PRIMARIA, size=8, opacity=0.35, line=dict(color=estilo.SUPERFICIE, width=1)),
+                marker=dict(color=pal.PRIMARIA, size=8, opacity=0.35, line=dict(color=pal.SUPERFICIE, width=1)),
                 customdata=np.stack([pts["uf"], pts["ano_mes"]], axis=1),
                 hovertemplate="%{customdata[0]} · %{customdata[1]}<br>X: %{x:,.2f}<br>Y: %{y:,.2f}<extra></extra>")
 fig.add_scatter(x=xs, y=np.polyval(coef, xs), mode="lines", name=f"Regressão linear (r = {r_xy:+.3f})",
-                line=dict(color=estilo.CATEGORICA[1], width=2.5), hoverinfo="skip")
+                line=dict(color=pal.CATEGORICA[1], width=2.5), hoverinfo="skip")
 fig.update_layout(xaxis_title=ROTULOS.get(x, x), yaxis_title=ROTULOS.get(y, y))
 st.plotly_chart(estilo.estilizar_plotly(fig, 440), width="stretch")
 st.caption(f"Reta: y = {coef[0]:+.4f}·x {coef[1]:+.2f}  ·  r² = {r_xy ** 2:.4f}  ·  "
@@ -128,11 +129,11 @@ with b1:
     fig, ax = plt.subplots(figsize=(8, 4.5))
     ordem = [a for a in dados.ORDEM_ALERTA if a in set(df["nivel_alerta"])]
     sns.boxplot(data=df, x="nivel_alerta", y="reservatorios_percentual", order=ordem, hue="nivel_alerta",
-                hue_order=ordem, palette=estilo.CORES_ALERTA, legend=False, width=0.55, linewidth=1.2,
+                hue_order=ordem, palette=pal.CORES_ALERTA, legend=False, width=0.55, linewidth=1.2,
                 fliersize=3, ax=ax)
-    ax.axhline(30, color=estilo.CORES_ALERTA["Crítico"], linewidth=1)
+    ax.axhline(30, color=pal.CORES_ALERTA["Crítico"], linewidth=1)
     ax.text(1.01, 30, "30%\ncrítico", transform=ax.get_yaxis_transform(), va="center", fontsize=8,
-            color=estilo.TINTA_SEC)
+            color=pal.TINTA_SEC)
     ax.set_xlabel("Nível de alerta informado")
     ax.set_ylabel("Reservatórios (%)")
     ax.set_title("Distribuição do nível dos reservatórios por nível de alerta")
@@ -141,7 +142,7 @@ with b1:
 with b2:
     cruz = pd.crosstab(df["nivel_alerta"], df["faixa_reservatorio"], normalize="index") * 100
     st.markdown("**% dos registros por faixa de reservatório**")
-    st.dataframe(cruz.style.format("{:.0f}%").background_gradient(cmap=estilo.CMAP_SEQ, axis=None),
+    st.dataframe(cruz.style.format("{:.0f}%").background_gradient(cmap=pal.CMAP_SEQ, axis=None),
                  width="stretch")
     st.caption("Cada linha soma 100%. Se o alerta fosse coerente, a linha *Crítico* se concentraria na coluna "
                "*Crítico (<30%)*.")
@@ -162,9 +163,9 @@ v = st.selectbox("Variável", VARS[:-1], format_func=lambda c: ROTULOS.get(c, c)
 h1, h2 = st.columns([3, 2])
 with h1:
     fig, ax = plt.subplots(figsize=(8, 4))
-    sns.histplot(df[v], bins=40, kde=True, color=estilo.PRIMARIA, edgecolor=estilo.SUPERFICIE, linewidth=1.5, ax=ax)
-    ax.axvline(df[v].mean(), color=estilo.CATEGORICA[1], linewidth=1.5, label=f"média = {fmt(df[v].mean(), 1)}")
-    ax.axvline(df[v].median(), color=estilo.TINTA, linewidth=1.5, label=f"mediana = {fmt(df[v].median(), 1)}")
+    sns.histplot(df[v], bins=40, kde=True, color=pal.PRIMARIA, edgecolor=pal.SUPERFICIE, linewidth=1.5, ax=ax)
+    ax.axvline(df[v].mean(), color=pal.CATEGORICA[1], linewidth=1.5, label=f"média = {fmt(df[v].mean(), 1)}")
+    ax.axvline(df[v].median(), color=pal.TINTA, linewidth=1.5, label=f"mediana = {fmt(df[v].median(), 1)}")
     ax.legend()
     ax.set_xlabel(ROTULOS.get(v, v))
     ax.set_ylabel("Frequência")

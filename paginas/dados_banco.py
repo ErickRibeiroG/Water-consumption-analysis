@@ -4,10 +4,11 @@ import textwrap
 import pandas as pd
 import streamlit as st
 
-from utils import app_comum, banco, dados
+from utils import app_comum, banco, dados, estilo
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
 
 st.title("Dados, tratamento e banco")
 st.markdown("Como a base foi preparada, quais problemas de qualidade existem e como os dados estão modelados no "
@@ -127,7 +128,8 @@ digraph {
     </table>>];
   regioes -> estados; estados -> medicoes; setores -> medicoes; niveis_alerta -> medicoes;
 }
-""", width="stretch")
+""".replace('bgcolor="white"', f'bgcolor="{pal.SUPERFICIE}" color="{pal.TINTA_MUTED}"')
+   .replace("fontsize=10];", f'fontsize=10, fontcolor="{pal.TINTA}"];'), width="stretch")
 
     contagem = banco.contar_registros(banco.obter_engine())
     st.caption("Registros por tabela: " + " · ".join(f"`{t}` = {fmt(n, 0)}" for t, n in contagem.items()))

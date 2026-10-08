@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Consumo de Água no Brasil | Projeto de Análise de Dados</title>
 <meta name="description" content="Projeto de análise e visualização de dados sobre consumo, desperdício e segurança hídrica no Brasil com Python, Pandas, Seaborn, SQLAlchemy e Streamlit.">
+<script>
+  // Aplica o tema salvo antes da primeira pintura (evita "piscar" claro → escuro).
+  try { const t = localStorage.getItem("tema"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
@@ -19,13 +23,75 @@
     --blue: #2a78d6;
     --blue-dark: #0d366b;
     --blue-soft: #e8f1fc;
+    --pill-ink: #0d366b;
     --orange: #eb6834;
     --good: #0ca30c;
     --critical: #d03b3b;
     --radius: 14px;
     --shadow: 0 1px 2px rgba(11, 27, 43, .05), 0 8px 24px rgba(11, 27, 43, .06);
+    --nav-bg: rgba(255, 255, 255, .88);
+    --th-bg: #fafbfa;
+    --code-bg: #f1f3f4;
+    --callout-bg: #fff5ef;
+    --callout-ink: #a8431a;
+    --check-bg: #e6f6e6;
+    --footer-bg: #0b1b2b;
+    --footer-ink: #b8c4cf;
+    color-scheme: light;
     --font: "Comfortaa", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121211;
+      --surface: #1c1c1b;
+      --ink: #f2f1ec;
+      --ink-2: #c3c2b7;
+      --muted: #8f8d86;
+      --line: #2e2e2c;
+      --blue: #5598e7;
+      --blue-dark: #0d366b;
+      --blue-soft: #1c2f48;
+    --pill-ink: #cde2fb;
+      --orange: #ee7a4c;
+      --good: #2fbf2f;
+      --critical: #e66767;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+      --nav-bg: rgba(18, 18, 17, .85);
+      --th-bg: #232322;
+      --code-bg: #2a2a28;
+      --callout-bg: #2a1d16;
+      --callout-ink: #f19a73;
+      --check-bg: #173017;
+      --footer-bg: #0a0a0a;
+      --footer-ink: #a3a29b;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121211;
+    --surface: #1c1c1b;
+    --ink: #f2f1ec;
+    --ink-2: #c3c2b7;
+    --muted: #8f8d86;
+    --line: #2e2e2c;
+    --blue: #5598e7;
+    --blue-dark: #0d366b;
+    --blue-soft: #1c2f48;
+    --pill-ink: #cde2fb;
+    --orange: #ee7a4c;
+    --good: #2fbf2f;
+    --critical: #e66767;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .25);
+    --nav-bg: rgba(18, 18, 17, .85);
+    --th-bg: #232322;
+    --code-bg: #2a2a28;
+    --callout-bg: #2a1d16;
+    --callout-ink: #f19a73;
+    --check-bg: #173017;
+    --footer-bg: #0a0a0a;
+    --footer-ink: #a3a29b;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -35,12 +101,15 @@
   .wrap { max-width: 1120px; margin: 0 auto; padding-inline: 24px; }
 
   /* topo */
-  nav.top { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  nav.top { position: sticky; top: 0; z-index: 10; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
   nav.top .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
   nav.top .brand { font-weight: 700; color: var(--ink); text-decoration: none; display: flex; gap: 8px; align-items: center; white-space: nowrap; }
   nav.top ul { display: flex; gap: 20px; list-style: none; margin: 0 0 0 auto; padding: 0; overflow-x: auto; }
   nav.top ul a { color: var(--ink-2); text-decoration: none; font-size: 14px; white-space: nowrap; }
   nav.top ul a:hover { color: var(--blue); }
+  .tema-btn { margin-left: 8px; flex: none; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: grid; place-items: center; font-size: 17px; line-height: 1; }
+  .tema-btn:hover { border-color: var(--blue); }
+  .tema-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
   /* hero */
   header.hero { background: linear-gradient(160deg, var(--blue-dark) 0%, #184f95 55%, var(--blue) 100%); color: #fff; padding-block: 72px 88px; position: relative; overflow: hidden; }
@@ -78,9 +147,9 @@
   .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; font-size: 15px; }
   th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { font-size: 13px; color: var(--muted); font-weight: 600; background: #fafbfa; }
+  th { font-size: 13px; color: var(--muted); font-weight: 600; background: var(--th-bg); }
   tr:last-child td { border-bottom: 0; }
-  td code, p code, li code { font-family: var(--mono); font-size: 13px; background: #f1f3f4; padding: 2px 6px; border-radius: 6px; }
+  td code, p code, li code { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 2px 6px; border-radius: 6px; }
   td.n { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 600; }
 
   /* figuras */
@@ -91,13 +160,13 @@
   .fig-wide { grid-column: 1 / -1; }
 
   /* destaques */
-  .callout { border-left: 4px solid var(--orange); background: #fff5ef; padding: 18px 22px; border-radius: 0 var(--radius) var(--radius) 0; color: var(--ink); }
-  .callout strong { color: #a8431a; }
-  .pill { display: inline-block; font-size: 13px; padding: 5px 12px; border-radius: 999px; background: var(--blue-soft); color: var(--blue-dark); margin: 0 6px 8px 0; font-weight: 500; }
+  .callout { border-left: 4px solid var(--orange); background: var(--callout-bg); padding: 18px 22px; border-radius: 0 var(--radius) var(--radius) 0; color: var(--ink); }
+  .callout strong { color: var(--callout-ink); }
+  .pill { display: inline-block; font-size: 13px; padding: 5px 12px; border-radius: 999px; background: var(--blue-soft); color: var(--pill-ink); margin: 0 6px 8px 0; font-weight: 500; }
   .check { list-style: none; padding: 0; margin: 0; }
   .check li { padding: 8px 0 8px 30px; position: relative; border-bottom: 1px dashed var(--line); font-size: 15px; color: var(--ink-2); }
   .check li:last-child { border-bottom: 0; }
-  .check li::before { content: "✓"; position: absolute; left: 0; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: #e6f6e6; color: var(--good); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
+  .check li::before { content: "✓"; position: absolute; left: 0; top: 8px; width: 20px; height: 20px; border-radius: 50%; background: var(--check-bg); color: var(--good); font-size: 12px; font-weight: 700; display: grid; place-items: center; }
   .check li b { color: var(--ink); }
 
   /* pipeline */
@@ -114,7 +183,7 @@
   pre.tree { font-family: var(--mono); font-size: 13.5px; background: #0f1d2b; color: #d6e3f0; padding: 20px; border-radius: var(--radius); overflow-x: auto; margin: 0; line-height: 1.55; }
   pre.tree .c { color: #7f95ab; }
 
-  footer { margin-top: 64px; background: var(--ink); color: #b8c4cf; padding-block: 36px; font-size: 14px; }
+  footer { margin-top: 64px; background: var(--footer-bg); color: var(--footer-ink); padding-block: 36px; font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
   footer a { color: #fff; }
 
@@ -125,6 +194,7 @@
   @media (max-width: 640px) {
     .wrap { padding-inline: 16px; }
     nav.top ul { display: none; }
+    .tema-btn { margin-left: auto; }
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .kpi .value { font-size: 1.6rem; }
     header.hero { padding-block: 48px 80px; }
@@ -145,6 +215,7 @@
       <li><a href="#arquivos">Arquivos</a></li>
       <li><a href="#dashboard">Dashboard</a></li>
     </ul>
+    <button class="tema-btn" id="tema-btn" type="button" aria-label="Alternar tema claro/escuro" title="Alternar tema claro/escuro">◐</button>
   </div>
 </nav>
 
@@ -225,36 +296,36 @@
     <p class="sub">Gráficos gerados com Matplotlib e Seaborn no notebook. No dashboard, as versões interativas usam Plotly.</p>
     <div class="grid-2">
       <figure>
-        <img src="imagens/01_consumo_regiao.png" alt="Barras horizontais: consumo total por região e consumo médio por registro" loading="lazy">
+        <img data-img="01_consumo_regiao.png" src="imagens/01_consumo_regiao.png" alt="Barras horizontais: consumo total por região e consumo médio por registro" loading="lazy">
         <figcaption><b>Totais enganam.</b> O Sudeste lidera o consumo total (35%) porque tem mais séries na base. Por registro,
           todas as regiões consomem cerca de 21 mi L.</figcaption>
       </figure>
       <figure>
-        <img src="imagens/02_desperdicio_setor.png" alt="Barras empilhadas: consumo efetivo e desperdiçado por setor" loading="lazy">
+        <img data-img="02_desperdicio_setor.png" src="imagens/02_desperdicio_setor.png" alt="Barras empilhadas: consumo efetivo e desperdiçado por setor" loading="lazy">
         <figcaption><b>Desperdício sistêmico.</b> Todos os setores perdem cerca de 30% da água consumida. O problema é estrutural,
           não de um setor específico.</figcaption>
       </figure>
       <figure class="fig-wide">
-        <img src="imagens/03_serie_temporal.png" alt="Linha do consumo mensal de 2015 a 2024 com média móvel e tendência" loading="lazy">
+        <img data-img="03_serie_temporal.png" src="imagens/03_serie_temporal.png" alt="Linha do consumo mensal de 2015 a 2024 com média móvel e tendência" loading="lazy">
         <figcaption><b>Consumo estável.</b> A média móvel de 12 meses oscila em torno de 770 mi L/mês, e a tendência linear é
           praticamente plana (−0,06% ao ano).</figcaption>
       </figure>
       <figure>
-        <img src="imagens/04_heatmap_ano_mes.png" alt="Mapa de calor do consumo por ano e mês" loading="lazy">
+        <img data-img="04_heatmap_ano_mes.png" src="imagens/04_heatmap_ano_mes.png" alt="Mapa de calor do consumo por ano e mês" loading="lazy">
         <figcaption><b>Sem sazonalidade.</b> Os meses de pico mudam de posição a cada ano. Não há um padrão repetido.</figcaption>
       </figure>
       <figure>
-        <img src="imagens/07_correlacao.png" alt="Matriz de correlação entre as variáveis numéricas" loading="lazy">
+        <img data-img="07_correlacao.png" src="imagens/07_correlacao.png" alt="Matriz de correlação entre as variáveis numéricas" loading="lazy">
         <figcaption><b>Variáveis independentes.</b> A maior correlação é |r| = 0,043. O clima não explica o consumo nem os
           reservatórios.</figcaption>
       </figure>
       <figure class="fig-wide">
-        <img src="imagens/08_chuva_alerta_reservatorio.png" alt="Dispersão chuva versus reservatórios e boxplot de reservatórios por nível de alerta" loading="lazy">
+        <img data-img="08_chuva_alerta_reservatorio.png" src="imagens/08_chuva_alerta_reservatorio.png" alt="Dispersão chuva versus reservatórios e boxplot de reservatórios por nível de alerta" loading="lazy">
         <figcaption><b>Inconsistência detectada.</b> Mais chuva não eleva os reservatórios, e o nível de alerta "Crítico" tem a
           mesma distribuição de reservatório que o "Baixo". O alerta não é derivado dos dados.</figcaption>
       </figure>
       <figure class="fig-wide">
-        <img src="imagens/09_populacao_ibge.png" alt="Barras agrupadas: população por UF na base e na estimativa do IBGE" loading="lazy">
+        <img data-img="09_populacao_ibge.png" src="imagens/09_populacao_ibge.png" alt="Barras agrupadas: população por UF na base e na estimativa do IBGE" loading="lazy">
         <figcaption><b>Integração com o IBGE.</b> A população da base (~3 milhões em média em qualquer estado) não corresponde à
           estimativa oficial obtida via API (SP: 46,6 milhões).</figcaption>
       </figure>
@@ -415,6 +486,29 @@
     if (chave !== "streamlit" && !configurado) return;
     el.href = links[chave];
   });
+
+  // 🌗 Tema claro/escuro: segue o sistema até o visitante escolher; a escolha fica salva no navegador.
+  const raiz = document.documentElement;
+  const midiaEscura = window.matchMedia("(prefers-color-scheme: dark)");
+  const temaEfetivo = () => raiz.dataset.theme || (midiaEscura.matches ? "dark" : "light");
+  function aplicarTema() {
+    const escuro = temaEfetivo() === "dark";
+    document.querySelectorAll("img[data-img]").forEach((img) => {
+      img.src = (escuro ? "imagens/dark/" : "imagens/") + img.dataset.img;
+    });
+    const btn = document.getElementById("tema-btn");
+    btn.textContent = escuro ? "☀" : "☾";
+    btn.setAttribute("aria-label", escuro ? "Mudar para o tema claro" : "Mudar para o tema escuro");
+    btn.title = btn.getAttribute("aria-label");
+  }
+  document.getElementById("tema-btn").addEventListener("click", () => {
+    const novo = temaEfetivo() === "dark" ? "light" : "dark";
+    raiz.dataset.theme = novo;
+    try { localStorage.setItem("tema", novo); } catch (e) {}
+    aplicarTema();
+  });
+  midiaEscura.addEventListener("change", aplicarTema);
+  aplicarTema();
 </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ from utils import app_comum, dados, estilo
 from utils.dados import formatar_num as fmt
 
 df, base, f = app_comum.obter_contexto()
+pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
 
 st.title("Consumo de Água no Brasil")
 st.markdown(
@@ -89,7 +90,7 @@ col, agg = metricas[escolha]
 g1, g2 = st.columns(2)
 por_regiao = df.groupby("regiao", observed=True)[col].agg(agg).reset_index()
 fig = px.bar(por_regiao, x=col, y="regiao", orientation="h", color="regiao",
-             color_discrete_map=estilo.CORES_REGIAO, text_auto=",.1f",
+             color_discrete_map=pal.CORES_REGIAO, text_auto=",.1f",
              labels={col: escolha, "regiao": ""})
 fig.update_traces(textposition="outside", cliponaxis=False, hovertemplate="%{y}: %{x:,.2f}<extra></extra>")
 fig.update_yaxes(categoryorder="array", categoryarray=list(reversed(dados.ORDEM_REGIOES)))
@@ -99,7 +100,7 @@ g1.plotly_chart(estilo.estilizar_plotly(fig, 340, legenda=False, titulo=f"{escol
 por_setor = df.groupby("setor_consumo", observed=True)[col].agg(agg).reset_index().sort_values(col)
 fig = px.bar(por_setor, x=col, y="setor_consumo", orientation="h", text_auto=",.1f",
              labels={col: escolha, "setor_consumo": ""})
-fig.update_traces(marker_color=estilo.PRIMARIA, textposition="outside", cliponaxis=False,
+fig.update_traces(marker_color=pal.PRIMARIA, textposition="outside", cliponaxis=False,
                   hovertemplate="%{y}: %{x:,.2f}<extra></extra>")
 fig.update_xaxes(range=[0, por_setor[col].max() * 1.22])
 g2.plotly_chart(estilo.estilizar_plotly(fig, 340, legenda=False, titulo=f"{escolha} por setor"), width="stretch")
@@ -113,7 +114,7 @@ fig = go.Figure()
 for nivel in dados.ORDEM_ALERTA:
     sub = alerta[alerta["nivel_alerta"] == nivel]
     fig.add_bar(y=sub["regiao"], x=sub["pct"], name=nivel, orientation="h",
-                marker=dict(color=estilo.CORES_ALERTA[nivel], line=dict(color=estilo.SUPERFICIE, width=2)),
+                marker=dict(color=pal.CORES_ALERTA[nivel], line=dict(color=pal.SUPERFICIE, width=2)),
                 text=sub["pct"].map(lambda v: f"{v:.0f}%"), textposition="inside",
                 insidetextanchor="middle", textfont=dict(color="white"),
                 hovertemplate="%{y} · " + nivel + ": %{x:.1f}%<extra></extra>")
