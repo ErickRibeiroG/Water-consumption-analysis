@@ -7,7 +7,11 @@ from utils.dados import formatar_num as fmt
 df, base, f = app_comum.obter_contexto()
 pal = estilo.paleta()  # cores do tema ativo (claro/escuro)
 
-st.title("Mapa e integração com o IBGE")
+# Título com o logo do IBGE no lugar do texto (versão de letras claras no tema escuro).
+st.markdown(
+    f"# Mapa e integração com o {app_comum.logo_ibge_html(pal.MODO)}",
+    unsafe_allow_html=True,
+)
 st.markdown(
     "Distribuição geográfica dos indicadores e cruzamento da base com dados oficiais obtidos **em tempo real** "
     "pelas APIs públicas do IBGE: localidades, malha territorial (GeoJSON) e estimativas de população."

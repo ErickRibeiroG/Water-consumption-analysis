@@ -38,6 +38,19 @@ def carregar_ibge(atualizar: bool = False):
     return tabela, geo, info
 
 
+@st.cache_data(show_spinner=False)
+def logo_ibge_html(modo: str = "light", altura: str = "0.82em") -> str:
+    """<img> inline (base64) do logo do IBGE, na versão adequada ao tema."""
+    import base64
+    from pathlib import Path
+
+    arquivo = "logo_ibge_dark.png" if modo == "dark" else "logo_ibge.png"
+    caminho = Path(__file__).resolve().parent.parent / "imagens" / arquivo
+    b64 = base64.b64encode(caminho.read_bytes()).decode()
+    return (f'<img src="data:image/png;base64,{b64}" alt="IBGE" '
+            f'style="height:{altura}; vertical-align:baseline; margin-left:0.15em;">')
+
+
 def aplicar_filtros(df: pd.DataFrame, f: dict) -> pd.DataFrame:
     mask = (
         df["ano"].between(*f["anos"])
