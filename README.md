@@ -6,8 +6,8 @@ Projeto de análise e visualização de dados sobre **consumo, desperdício e se
 
 | Entrega | Link |
 |---|---|
-| 📄 Página do projeto (GitHub Pages) | `https://SEU_USUARIO.github.io/SEU_REPOSITORIO/` |
-| 📊 Dashboard (Streamlit Community Cloud) | `https://SEU-APP.streamlit.app` |
+| 📄 Página do projeto (GitHub Pages) | `https://erickribeirog.github.io/Water-consumption-analysis/` |
+| 📊 Dashboard (Streamlit Community Cloud) | `https://consumo-agua-br-m2okw6bzzwja2rztjwjzfe.streamlit.app` |
 | 📓 Notebook de análise | [`notebooks/analise_consumo_agua.ipynb`](notebooks/analise_consumo_agua.ipynb) |
 | 🐍 Código do dashboard | [`app.py`](app.py) + [`paginas/`](paginas/) + [`utils/`](utils/) |
 
@@ -192,18 +192,5 @@ O projeto entrega um **pipeline completo e reutilizável** de dados: tratamento,
 relacional, integração com API e dashboard multipágina. As recomendações são: (1) programa estrutural de redução de
 perdas, (2) recalcular o nível de alerta com regras objetivas (`faixa_reservatorio`), (3) validar a população com o IBGE
 na origem e (4) aplicar o mesmo pipeline a dados oficiais (SNIS/ANA) pelo **upload** do dashboard.
-
-## 10. Publicação
-
-1. **GitHub:** envie todo o conteúdo desta pasta para o repositório (o `.gitignore` já exclui a `.venv`).
-2. **GitHub Pages:** *Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main` / `(root)`*.
-   O `index.html` da raiz vira a página do projeto.
-3. **Streamlit Community Cloud:** em [share.streamlit.io](https://share.streamlit.io), *Create app → Deploy a public app
-   from GitHub*, selecione o repositório, branch `main` e arquivo `app.py`. Em *Advanced settings*, escolha
-   **Python 3.12 ou superior**.
-4. Atualize os links: no `index.html`, edite o objeto `CONFIG` no final do arquivo (`repo` e `streamlit`). Neste README,
-   edite a tabela do topo.
-
----
 
 **Autor:** Erick Ribeiro · Sistemas de Informação · Linguagens de Programação
